@@ -1,1 +1,201 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QUANCORE | Ecosystem Hub</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/@tonconnect/sdk@latest/dist/tonconnect-sdk.min.js"></script>
+    <style>
+        /* Дополнительное размытие и кастомный градиент для эффекта стекла */
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .neon-glow {
+            text-shadow: 0 0 15px rgba(0, 229, 255, 0.6);
+        }
+    </style>
+</head>
+<body class="bg-[#0a0d14] text-gray-100 font-sans min-h-screen flex flex-col items-center justify-between p-4 overflow-x-hidden selection:bg-cyan-500 selection:text-white">
 
+    <div class="absolute top-[-10%] left-[-20%] w-[300px] h-[300px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="absolute bottom-[10%] right-[-20%] w-[350px] h-[350px] bg-purple-600/10 rounded-full blur-[150px] pointer-events-none"></div>
+
+    <header class="w-full max-w-md glassmorphism rounded-2xl p-4 flex items-center justify-between shadow-2xl z-10 animate-fade-in">
+        <div class="flex items-center gap-3">
+            <img src="/static/images/logo.png" alt="QUANCORE Logo" class="w-10 h-10 rounded-xl object-cover border border-cyan-500/30">
+            <div>
+                <h1 class="text-base font-bold tracking-wider text-cyan-400 neon-glow">QUANCORE</h1>
+                <p class="text-[10px] text-gray-400 tracking-widest uppercase">The core of everything</p>
+            </div>
+        </div>
+        <button id="ton-connect-btn" class="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-cyan-500/20 transition-all duration-300 transform active:scale-95 cursor-pointer">
+            Wallet Connect
+        </button>
+    </header>
+
+    <main class="w-full max-w-md flex-1 flex flex-col justify-center my-6 z-10 gap-4">
+        
+        <div class="glassmorphism rounded-3xl p-6 text-center shadow-xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 rounded-full blur-2xl"></div>
+            <p class="text-xs text-gray-400 uppercase tracking-widest mb-1">Твой Баланс Поинтов</p>
+            <div class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-200 to-cyan-300 tracking-tight mb-4">
+                <span id="user-points">0</span> <span class="text-xl text-cyan-400">QC</span>
+            </div>
+            
+            <div id="wallet-status" class="inline-flex items-center gap-2 px-3 py-1.5 bg-red-500/10 border border-red-500/20 rounded-full text-[11px] text-red-400 transition-all duration-300">
+                <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                Кошелек не подключен
+            </div>
+        </div>
+
+        <div class="glassmorphism rounded-3xl p-5 shadow-xl">
+            <h3 class="text-sm font-semibold tracking-wide text-gray-300 mb-4 flex items-center gap-2">
+                🚀 Квантовые Задания
+            </h3>
+            
+            <div class="flex flex-col gap-3">
+                <div class="flex items-center justify-between p-3 bg-white/3 border border-white/5 rounded-xl hover:bg-white/5 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400 font-bold text-sm">TG</div>
+                        <div>
+                            <h4 class="text-xs font-medium">Вступить в комьюнити</h4>
+                            <p class="text-[10px] text-cyan-400/80">+50 QC</p>
+                        </div>
+                    </div>
+                    <button onclick="window.open('https://t.me/твой_канал', '_blank')" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-[11px] font-medium rounded-lg transition-colors cursor-pointer">
+                        Проверить
+                    </button>
+                </div>
+
+                <div class="flex items-center justify-between p-3 bg-white/3 border border-white/5 rounded-xl hover:bg-white/5 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 font-bold text-sm">🤝</div>
+                        <div>
+                            <h4 class="text-xs font-medium">Пригласить друга</h4>
+                            <p class="text-[10px] text-purple-400/80">+25 QC за друга</p>
+                        </div>
+                    </div>
+                    <button id="invite-btn" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-[11px] font-medium rounded-lg transition-colors cursor-pointer">
+                        Позвать
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <button id="claim-btn" disabled class="w-full py-4 bg-white/5 border border-white/10 text-gray-400 text-sm font-bold rounded-2xl cursor-not-allowed transition-all duration-300 shadow-xl">
+            Забрать токены QC на кошелек
+        </button>
+
+    </main>
+
+    <footer class="w-full max-w-md text-center py-2 z-10">
+        <p class="text-[10px] text-gray-500 tracking-wider">QUANCORE © 2026. Все права защищены.</p>
+    </footer>
+
+    <script>
+        // Инициализация TON Connect SDK
+        // ВАЖНО: Манифест лежит по правильному пути /static/tonconnect-manifest.json
+        const connector = new TonConnectSDK.TonConnect({
+            manifestUrl: window.location.origin + '/static/tonconnect-manifest.json'
+        });
+
+        const connectBtn = document.getElementById('ton-connect-btn');
+        const walletStatus = document.getElementById('wallet-status');
+        const claimBtn = document.getElementById('claim-btn');
+        const userPointsElement = document.getElementById('user-points');
+
+        // Эмуляция загрузки баланса (поинтов) пользователя
+        let userPoints = 150; 
+        userPointsElement.innerText = userPoints;
+
+        // Функция обновления UI в зависимости от статуса кошелька
+        function updateWalletUI(wallet) {
+            if (wallet) {
+                // Кошелек успешно подключен
+                const rawAddress = wallet.account.address;
+                // Форматируем адрес для отображения (сокращаем)
+                const shortAddress = rawAddress.slice(0, 4) + '...' + rawAddress.slice(-4);
+                
+                connectBtn.innerText = shortAddress;
+                connectBtn.classList.remove('from-cyan-500', 'to-blue-600');
+                connectBtn.classList.add('from-emerald-500', 'to-teal-600');
+
+                walletStatus.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Подключен: ${shortAddress}`;
+                walletStatus.classList.remove('bg-red-500/10', 'border-red-500/20', 'text-red-400');
+                walletStatus.classList.add('bg-emerald-500/10', 'border-emerald-500/20', 'text-emerald-400');
+
+                // Активируем кнопку Клейма токенов
+                claimBtn.disabled = false;
+                claimBtn.innerText = "🚀 Получить токены (Ончейн)";
+                claimBtn.classList.remove('bg-white/5', 'border-white/10', 'text-gray-400', 'cursor-not-allowed');
+                claimBtn.classList.add('bg-gradient-to-r', 'from-purple-600', 'to-indigo-600', 'hover:from-purple-500', 'hover:to-indigo-500', 'text-white', 'cursor-pointer', 'shadow-purple-500/20');
+            } else {
+                // Кошелек отключен
+                connectBtn.innerText = 'Wallet Connect';
+                connectBtn.classList.remove('from-emerald-500', 'to-teal-600');
+                connectBtn.classList.add('from-cyan-500', 'to-blue-600');
+
+                walletStatus.innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Кошелек не подключен`;
+                walletStatus.classList.remove('bg-emerald-500/10', 'border-emerald-500/20', 'text-emerald-400');
+                walletStatus.classList.add('bg-red-500/10', 'border-red-500/20', 'text-red-400');
+
+                claimBtn.disabled = true;
+                claimBtn.innerText = "Забрать токены QC на кошелек";
+                claimBtn.className = "w-full py-4 bg-white/5 border border-white/10 text-gray-400 text-sm font-bold rounded-2xl cursor-not-allowed transition-all duration-300 shadow-xl";
+            }
+        }
+
+        // Подписка на изменение статуса подключения кошелька
+        connector.onStatusChange(wallet => {
+            updateWalletUI(wallet);
+        });
+
+        // Клик по кнопке подключения
+        connectBtn.addEventListener('click', async () => {
+            if (connector.connected) {
+                // Если уже подключен, то по клику отключаем кошелек
+                await connector.disconnect();
+            } else {
+                // Если не подключен, генерируем ссылку для подключения
+                const walletConnectionSource = {
+                    universalLink: 'https://tonkeeper.app/jetton', // Дефолтный переход в Тонкипер
+                    bridgeUrl: 'https://bridge.tonapi.io/bridge'
+                };
+                
+                // Для WebApp внутри Телеграма генерируем универсальную ссылку
+                const connectUrl = connector.connect({
+                    bridgeUrl: walletConnectionSource.bridgeUrl,
+                    universalLink: walletConnectionSource.universalLink
+                });
+                
+                // Перенаправляем пользователя в кошелек для подтверждения
+                window.open(connectUrl, '_blank');
+            }
+        });
+
+        // Логика кнопки Клейма (когда кошелек привязан)
+        claimBtn.addEventListener('click', () => {
+            if (!connector.connected) return;
+            
+            alert(`Запрос на отправку токенов QC сформирован! Скоро транзакция появится в вашем кошельке.`);
+            
+            // Здесь в будущем можно вызвать connector.sendTransaction({...}) 
+            // для смарт-контракта, либо отправить запрос на твой сервер в main.py
+        });
+
+        // Кнопка «Позвать друга» (эмуляция генерации ссылки)
+        document.getElementById('invite-btn').addEventListener('click', () => {
+            alert("Ссылка скопирована! Отправь её другу, чтобы получить +25 QC.");
+        });
+
+        // Проверяем текущее состояние при загрузке страницы
+        connector.restoreConnection().then(() => {
+            updateWalletUI(connector.wallet);
+        });
+    </script>
+</body>
+</html>
